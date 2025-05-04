@@ -1,0 +1,174 @@
+# Файл: api/docs/swagger.yaml
+openapi: 3.0.0
+info:
+  title: API безпеки на основі блокчейн
+  description: API для взаємодії з системою безпеки на основі блокчейн Hyperledger Fabric
+  version: 1.0.0
+servers:
+- url: http://localhost:3000
+  description: Локальний сервер розробки
+paths:
+  /api/health:
+    get:
+      summary: Перевірка стану API
+      description: Повертає інформацію про стан API та його версію
+      responses:
+        '200':
+          description: Успішна відповідь
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  version:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+  /api/users:
+    post:
+      summary: Створення нового користувача
+      description: Створює нового користувача з вказаними ролями в системі
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - id
+              - name
+              - org
+              - roles
+              properties:
+                id:
+                  type: string
+                  description: Унікальний ідентифікатор користувача
+                name:
+                  type: string
+                  description: Ім'я користувача
+                org:
+                  type: string
+                  description: Організація користувача
+                roles:
+                  type: array
+                  items:
+                    type: string
+                  description: Ролі користувача в системі
+      responses:
+        '201':
+          description: Користувач успішно створений
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  userId:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+        '400':
+          description: Неправильні вхідні дані
+        '500':
+          description: Внутрішня помилка сервера
+  /api/access/check:
+    post:
+      summary: Перевірка доступу
+      description: Перевіряє чи має користувач доступ до вказаного ресурсу
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - userId
+              - resourceId
+              properties:
+                userId:
+                  type: string
+                  description: Ідентифікатор користувача
+                resourceId:
+                  type: string
+                  description: Ідентифікатор ресурсу
+      responses:
+        '200':
+          description: Успішна перевірка доступу
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  userId:
+                    type: string
+                  resourceId:
+                    type: string
+                  accessGranted:
+                    type: boolean
+                  timestamp:
+                    type: string
+                    format: date-time
+        '400':
+          description: Неправильні вхідні дані
+        '500':
+          description: Внутрішня помилка сервера
+  /api/audit/events:
+    get:
+      summary: Отримання подій аудиту
+      description: Повертає список подій аудиту за заданими критеріями
+      parameters:
+      - in: query
+        name: startTime
+        schema:
+          type: integer
+        description: Початковий час (Unix timestamp)
+      - in: query
+        name: endTime
+        schema:
+          type: integer
+        description: Кінцевий час (Unix timestamp)
+      - in: query
+        name: eventType
+        schema:
+          type: string
+        description: Тип події
+      - in: query
+        name: actor
+        schema:
+          type: string
+        description: Ідентифікатор користувача
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        description: Максимальна кількість подій
+      responses:
+        '200':
+          description: Успішне отримання подій
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  count:
+                    type: integer
+                  events:
+                    type: array
+                    items:
+                      type: object
+                  timestamp:
+                    type: string
+                    format: date-time
+        '500':
+          description: Внутрішня помилка сервера
